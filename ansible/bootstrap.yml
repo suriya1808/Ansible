@@ -1,0 +1,36 @@
+# Run this ONCE, before site.yml. It sets up a separate "deploy" user and
+# SSH key, so Ansible no longer needs the original ansible-key.pem.
+#
+#   ansible-playbook bootstrap.yml
+
+- name: Create an SSH key for the control server
+  hosts: localhost
+  connection: local
+  tasks:
+    - name: Generate the key (skipped if it already exists)
+      ansible.builtin.command:
+        cmd: ssh-keygen -t ed25519 -N "" -C "ansible-control" -f {{ control_key }}
+        creates: "{{ control_key }}"
+
+- name: Create the deploy user on all servers
+  hosts: servers
+  become: true
+  vars:
+    # Connect the old way for this play only, because the deploy user
+    # doesn't exist yet. (Play vars override group_vars.)
+    ansible_user: ubuntu
+    ansible_ssh_private_key_file: ~/.ssh/ansible-key.pem
+  tasks:
+    - name: Create the deploy user with sudo rights
+      ansible.builtin.user:
+        name: "{{ deploy_user }}"
+        groups: sudo
+        append: true
+        shell: /bin/bash
+        password: "{{ vault_deploy_password | password_hash('sha512') }}"
+        update_password: on_create # set the password only when the user is created
+
+    - name: Allow the control server's key to log in as deploy
+      ansible.posix.authorized_key:
+        user: "{{ deploy_user }}"
+        key: "{{ lookup('file', control_key + '.pub') }}"

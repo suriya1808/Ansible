@@ -1,0 +1,31 @@
+# Dynamic inventory: instead of a fixed list of IPs, Ansible asks AWS
+# for the running servers every time it runs.
+# Note: the file name must end in "aws_ec2.yml" for Ansible to recognise it.
+plugin: amazon.aws.aws_ec2
+
+regions:
+  - eu-west-1
+
+# Only running servers created by our Terraform project
+filters:
+  instance-state-name: running
+  tag:Name: ansible-server-*
+
+# Leave out the control server (server 1), Ansible runs from there
+exclude_filters:
+  - tag:Role: control
+
+# Show servers by their AWS name (ansible-server-2) instead of an IP
+hostnames:
+  - tag:Name
+
+# Connect using the private IP (works inside AWS and doesn't change on reboot)
+compose:
+  ansible_host: private_ip_address
+
+# Put servers into groups based on their "Role" tag.
+# These are the same group names that site.yml uses.
+groups:
+  python_servers: tags.Role == 'python'
+  node_servers: tags.Role == 'node'
+  servers: tags.Role in ['python', 'node']

@@ -1,0 +1,57 @@
+# --- Firewall (UFW) ---
+- name: Install UFW and fail2ban
+  ansible.builtin.apt:
+    name:
+      - ufw
+      - fail2ban
+    state: present
+    update_cache: true
+
+- name: Allow the needed ports through the firewall
+  community.general.ufw:
+    rule: allow
+    port: "{{ item }}"
+    proto: tcp
+  loop: "{{ ufw_allowed_ports }}"
+
+# The allow rules above must exist first, otherwise this would block SSH
+- name: Turn on the firewall and block all other incoming traffic
+  community.general.ufw:
+    state: enabled
+    policy: deny
+
+# --- SSH ---
+# Ubuntu reads files in sshd_config.d/ before the main config, and the first
+# value it finds wins, so the "00-" prefix makes these settings take effect.
+- name: Harden SSH settings
+  ansible.builtin.copy:
+    dest: /etc/ssh/sshd_config.d/00-hardening.conf
+    mode: "0644"
+    content: |
+      # Managed by Ansible
+      PermitRootLogin no
+      PasswordAuthentication no
+      KbdInteractiveAuthentication no
+      AllowUsers {{ deploy_user }} ubuntu
+  notify: Restart ssh
+
+# --- fail2ban: blocks IPs that keep failing to log in ---
+- name: Configure fail2ban for SSH
+  ansible.builtin.copy:
+    dest: /etc/fail2ban/jail.d/sshd.local
+    mode: "0644"
+    content: |
+      # Managed by Ansible
+      [sshd]
+      enabled  = true
+      maxretry = 5
+      findtime = 10m
+      bantime  = 1h
+      ignoreip = {{ fail2ban_ignore_ips }}
+  notify: Restart fail2ban
+
+- name: Make sure fail2ban is running and starts on boot
+  ansible.builtin.service:
+    name: fail2ban
+    state: started
+    enabled: true

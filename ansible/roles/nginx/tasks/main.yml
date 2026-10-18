@@ -1,0 +1,12 @@
+- name: Install nginx
+  ansible.builtin.apt:
+    name: nginx
+    state: present
+    update_cache: true # same as "apt update" first
+  notify: Restart nginx # runs the handler only if this task changed something
+
+- name: Make sure nginx is running and starts on boot
+  ansible.builtin.service:
+    name: nginx
+    state: started
+    enabled: true

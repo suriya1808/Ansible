@@ -1,0 +1,68 @@
+# ============================================================
+# Terraform
+# ============================================================
+# Downloaded providers/plugins (recreated by "terraform init")
+**/.terraform/
+
+# State files: contain server details AND the generated private SSH key.
+# Kept on the local machine only, never commit them.
+*.tfstate
+*.tfstate.*
+.terraform.tfstate.lock.info
+
+# Saved plans can contain sensitive values
+*.tfplan
+
+# Crash logs
+crash.log
+crash.*.log
+
+# Variable files often contain secrets
+*.tfvars
+*.tfvars.json
+
+# Local-only overrides
+override.tf
+override.tf.json
+*_override.tf
+*_override.tf.json
+
+# NOTE: .terraform.lock.hcl is intentionally NOT ignored.
+# It pins provider versions and should be committed.
+
+# ============================================================
+# SSH keys
+# ============================================================
+*.pem
+*.key
+id_rsa*
+id_ed25519*
+
+# ============================================================
+# Ansible
+# ============================================================
+# Vault password files (the key that unlocks vault.yml)
+.vault_pass*
+*.vault_pass
+vault_password*
+
+# NOTE: group_vars/all/vault.yml is intentionally NOT ignored.
+# It is encrypted with Ansible Vault and safe to commit.
+
+# Retry files and local Ansible cache/temp folders
+*.retry
+.ansible/
+__pycache__/
+*.pyc
+
+# ============================================================
+# Logs, editors and OS files
+# ============================================================
+*.log
+*.swp
+*~
+.env
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db

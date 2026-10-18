@@ -1,0 +1,5 @@
+- name: Install Python, pip and venv
+  ansible.builtin.apt:
+    name: "{{ python_packages }}"
+    state: present
+    update_cache: true

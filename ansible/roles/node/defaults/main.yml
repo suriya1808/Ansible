@@ -1,0 +1,4 @@
+# Default variables for this role. You can override them in a playbook or inventory.
+node_packages:
+  - nodejs
+  - npm

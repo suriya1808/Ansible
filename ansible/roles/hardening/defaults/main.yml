@@ -1,0 +1,8 @@
+# Ports the firewall allows in (everything else is blocked)
+ufw_allowed_ports:
+  - "22" # SSH
+  - "80" # HTTP (nginx)
+
+# fail2ban never blocks these addresses. 172.31.0.0/16 is the default AWS VPC,
+# so the control server can't get locked out.
+fail2ban_ignore_ips: "127.0.0.1/8 172.31.0.0/16"

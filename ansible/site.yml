@@ -1,0 +1,21 @@
+# Main playbook. Each play picks a group of servers and applies roles to it.
+# The actual work lives in roles/<name>/tasks/main.yml.
+
+- name: All servers
+  hosts: servers
+  become: true # run as root (like sudo)
+  roles:
+    - hardening
+    - nginx
+
+- name: Python servers
+  hosts: python_servers
+  become: true
+  roles:
+    - python
+
+- name: Node.js servers
+  hosts: node_servers
+  become: true
+  roles:
+    - node

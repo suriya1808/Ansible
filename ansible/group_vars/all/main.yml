@@ -1,0 +1,12 @@
+# User that Ansible creates (in bootstrap.yml) and then logs in as
+deploy_user: deploy
+
+# SSH key on the control server (server 1), created by bootstrap.yml
+control_key: /home/ubuntu/.ssh/id_ed25519
+
+# Connection settings for every server in the inventory
+ansible_user: "{{ deploy_user }}"
+ansible_ssh_private_key_file: "{{ control_key }}"
+
+# sudo password for the deploy user. The real value is encrypted in vault.yml.
+ansible_become_password: "{{ vault_deploy_password }}"
